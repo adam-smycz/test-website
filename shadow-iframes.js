@@ -18,8 +18,8 @@ shadowStyles.innerHTML = `
 shadowButton.type = "button";
 shadowButton.innerHTML = "Click Shadow";
 shadowParagraph.innerHTML = "This box is a Shadow Root. Includes Shadow DOM only, with iframe and iframe with shadow dom.";
-shadowIframe.src = "https://aciele.github.io/test-website/iframe-content.html";
-shadowIframe2.src = "https://aciele.github.io/test-website/iframe-content-shadow.html";
+shadowIframe.src = "iframe-content.html";
+shadowIframe2.src = "iframe-content-shadow.html";
 
 shadow.appendChild(shadowStyles);
 shadow.appendChild(shadowButton);

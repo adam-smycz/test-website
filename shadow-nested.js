@@ -37,7 +37,7 @@
 
   const img = document.createElement('img');
   img.style = 'width: 100px; height: auto; margin-top: 10px;'
-  img.src = "/assets/placeholder.jpeg";
+  img.src = "assets/placeholder.jpeg";
 
   shadow2.appendChild(img);
   
