@@ -33,6 +33,12 @@
   const div = document.createElement('div');
   div.innerHTML = 'This is a Shadow DOM inside Shadow DOM';
 
-  
   shadow2.appendChild(div);
+
+  const img = document.createElement('img');
+  img.style = 'width: 100px; height: auto; margin-top: 10px;'
+  img.src = "/assets/placeholder.jpeg";
+
+  shadow2.appendChild(img);
+  
 })();
