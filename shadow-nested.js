@@ -40,5 +40,26 @@
   img.src = "assets/placeholder.jpeg";
 
   shadow2.appendChild(img);
+
+
+  const shadowRoot3 = document.createElement('div');
+  const shadow3HostStyles = document.createElement('style');
+  shadow3HostStyles.innerHTML = `
+    :host {
+      background: pink;
+      padding: 20px 40px;
+      border: 1px solid black;
+    }
+  `;
+
+  const shadow3Button = document.createElement('button');
+  shadow3Button.innerText = "I am button of 3rd level shadow DOM";
+
+  const shadow3 = shadowRoot3.attachShadow({ mode: 'open' });
+  shadow2.appendChild(shadowRoot3);
+  shadow3.appendChild(shadow3HostStyles);
+  shadow3.appendChild(shadow3Button)
+  
+
   
 })();
