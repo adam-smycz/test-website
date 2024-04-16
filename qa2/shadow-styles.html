@@ -3,81 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="./bbva-testing-6.4.70.js"></script>
+    <script async src="./qa2-bbva-testing-6.4.70.js"></script>
 
     <title>Shadow Paths test</title>
     <style>
         body {
             margin: 40px 40px;
         }
-        div {
-            box-sizing: border-box;
-        }
-
-        .boxes {
-            display: flex;
-        }
-
-        .box {
-            width: 300px;
-            height: 300px;
-            border: 1px solid black;
-        }
-
-        #span-btn {
-            display: inline-block;
-            border: 1px solid red;
-            padding: 10px 18px;
-        }
     </style>
 </head>
 <body>
-    <h2>HTML VERSION DOM</h2>
+    <h2>SHADOW DOM STYLES</h2>
 
-    <div class="boxes">
-        <div class="box">
-            <div>
-                <p>Test paragraph</p>
-                <p>Test paragraph 2</p>
-                <button>I am a test button</button>
-            </div>
-        </div>
-        <div class="box"></div>
-    </div>
-
-    <div class="boxes">
-        <div class="box"></div>
-        <div class="box"></div>
-    </div>
-
-    <br />
-    <br />
-
-    <div class="boxes">
-        <div class="box"></div>
-        <div class="box" id="box-with-id">
-            <button id="btn1" role="button">click btn1</button>
-        </div>
-    </div>
-
-    <div class="boxes">
-        <div class="box"></div>
-        <div class="box" id="box-with-id">
-            <button id="btn2" role="button" style="margin-top:70px;">click btn2</button>
-        </div>
-    </div>
-
-    <br />
-    <br />
-
-    <h2>SHADOW DOM VERSION</h2>
-
-    <div>
-        <div id="shadow-dom-root-1">
-        </div>
-    </div>
-    
-    
+    <div id="shadow-root-1"></div>
 
     <!-- apply styles to styleSheets document (not to DOM)  -->
     <script>
@@ -93,7 +31,8 @@
     <!-- add Shadow DOM  -->
 
     <script>
-        const shadowRoot1 = document.getElementById('shadow-dom-root-1');
+        const shadowRoot1 = document.getElementById('shadow-root-1');
+        
         const shadowDom1 = shadowRoot1.attachShadow({ mode: 'open' });
 
         shadowRoot1.style = 'border: 1px solid black; padding: 18px;';

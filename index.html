@@ -3,82 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test websiste</title>
-    <script async src="./bbva-testing-6.4.70.js"></script>
-    <style>
-        #js-root {
-            background-color: #cccccc;
-            margin-bottom: 40px;
-        }
-
-        #html-only {
-            background-color: #eaeaea;
-            margin-bottom: 40px;
-            padding: 20px 15px;
-        }
-
-        #shadow-root-nested {
-            margin-bottom: 20px;
-        }
-
-        button {
-            border: 1px solid black;
-            padding: 8px 20px;
-            border-radius: 8px;
-
-        }
-
-        #shadow-root-iframes {
-            border: 3px solid purple;
-            background-color: aliceblue;
-            padding: 20px 15px;
-        }
-
-        img {
-            width: 100px;
-            height: auto;
-            margin-top: 10px;
-            display: block;
-        }
-    </style>
-    <style>
-        body {
-            margin: 20px;
-        }
-    </style>
+    <title>Website with test cases</title>
 </head>
 <body>
-    <h1>Test website</h1>
-    <div id="html-only" style="border: 2px solid #dddddd;">
-        <p>This is an HTML content only with inline styles.</p>
-        <button type="button">Click</button>
-        <img src="assets/placeholder.jpeg"  alt="poster" />
-        <br />
-        <a href="second-page.html" alt="second page">Go to second page</a>
-    </div>
+    <h1>This wesite includes various test cases</h1>
+    <p>Index page does not have SDK installed.</p>
 
-    <h2>Javascript test</h2>
-    <div id="js-root"></div>
+    <h2>QA2 (Performance) environment links</h2>
+    <ul>
+        <li>
+            <a href="qa2">index</a>
+        </li>
+        <li>
+            <a href="qa2/second-page.html">Second Page</a>
+        </li>
+        <li>
+            <a href="qa2/shadow-styles.html">Shadow DOM stylesheets</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa2/test-cases-shadow-dom.html">Advanced test cases 1</a>
+        </li>
+        <li>
+            <a href="qa2/test-cases-shadow-dom-separate-testing.html">Advanced test cases 2</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa2/map-test.html">HTML + Shadow dom 1 simple case</a>
+        </li>
+        <li>
+            <a href="qa2/map-test-2.html">HTML + Shadow dom 2 simple case</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa2/case-1.html">HTML only iframe</a>
+        </li>
+        <li>
+            <a href="qa2/case-2.html">Iframe with Shadow DOM</a>
+        </li>
+        <li>
+            <a href="qa2/case-3.html">Iframe inside SHADOW DOM</a>
+        </li>
+        <li>
+            <a href="qa2/case-4.html">Iframe inside SHADOW DOM with SHADOW DOM</a>
+        </li>
+    </ul>
 
-    <h2>Shadow DOM test</h2>
-    <div id="shadow-root-nested"></div>
-    
 
-    <h2>Iframe in pure html</h2>
-    <div style="border: 2px solid black; margin: 20px 0; padding: 20px 15px;">
-        This box is pure HTML. Includes iframes with and without Shadow DOM.
-        <br />
-        <iframe src="iframe-content.html"></iframe>
-        
-        <iframe src="iframe-content-shadow.html"></iframe>
-    </div>
-
-    <h2>Iframes inserted by Shadow DOM</h2>
-
-    <div id="shadow-root-iframes"></div>
-
-    <script src="shadow-iframes.js"></script>
-    <script src="js-manipulation.js"></script>
-    <script src="shadow-nested.js"></script>
+    <h2>QA3 environment links</h2>
+    <ul>
+        <li>
+            <a href="qa3">index</a>
+        </li>
+        <li>
+            <a href="qa3/second-page.html">Second Page</a>
+        </li>
+        <li>
+            <a href="qa3/shadow-styles.html">Shadow DOM stylesheets</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa3/test-cases-shadow-dom.html">Advanced test cases 1</a>
+        </li>
+        <li>
+            <a href="qa3/test-cases-shadow-dom-separate-testing.html">Advanced test cases 2</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa3/map-test.html">HTML + Shadow dom 1 simple case</a>
+        </li>
+        <li>
+            <a href="qa3/map-test-2.html">HTML + Shadow dom 2 simple case</a>
+        </li>
+        <br>
+        <li>
+            <a href="qa3/case-1.html">HTML only iframe</a>
+        </li>
+        <li>
+            <a href="qa3/case-2.html">Iframe with Shadow DOM</a>
+        </li>
+        <li>
+            <a href="qa3/case-3.html">Iframe inside SHADOW DOM</a>
+        </li>
+        <li>
+            <a href="qa3/case-4.html">Iframe inside SHADOW DOM with SHADOW DOM</a>
+        </li>
+    </ul>
 </body>
 </html>
