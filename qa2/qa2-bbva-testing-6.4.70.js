@@ -379,5 +379,23 @@ TLT.addModule("flushQueue", function () {
         }());
     }
 
+    TLT.registerBridgeCallbacks([{
+        enabled: true,
+        cbType: "messageRedirect",
+        cbFunction: (function () {
+            var lastCount = 0;
+    
+            return function (msg, msgObj) {
+                if (msgObj && msgObj.count > lastCount) {
+                    lastCount = msgObj.count;
+                    if (msgObj.type && msgObj.event && msgObj.event.type && msgObj.target.id) {
+                        console.log("---> Type " + msgObj.type + " " + msgObj.event.type + " on " + msgObj.target.id);
+                    }
+                }
+                return msgObj;
+            };
+        }())
+    }]);
+
     window.TLT.init(config, afterInit);
 }());
