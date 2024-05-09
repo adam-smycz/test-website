@@ -10,7 +10,7 @@ p {
 @font-face {
     font-style: normal;
     font-family: fancyFont;
-    src: url(assets/RemachineScript.ttf) format("truetype");
+    src: url(/assets/RemachineScript.ttf) format("truetype");
 }
 
 .fancy-font {

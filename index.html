@@ -1,119 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website with test cases</title>
+    <link rel="stylesheet" href="/assets/css/public/font-case-style.css">
+    <link rel="stylesheet" href="/assets/css/public/base.min.8d361898.css">
+    <script async src="./qa2-bbva-testing-6.4.70.js"></script>
+    <title>FONTS</title>
 </head>
+
 <body>
-    <h1>This wesite includes various test cases</h1>
-    <p>Index page does not have SDK installed.</p>
-
-    <h2>QA2 (Performance) environment links</h2>
-    <ul>
-        <li>
-            <a href="qa2">index</a>
-        </li>
-
-        <br>
-        <br>
-        <li>
-            <a href="qa2/simple.html">Simple HTML case</a>
-        </li>
-
-        <li>
-            <a href="qa2/simple-shadow-dom.html">Shadow > button</a>
-        </li>
-
-        <li>
-            <a href="qa2/simple-shadow-iframe-shadow.html">Shadow > Iframe > Shadow > button</a>
-        </li>
-
-        <br>
-        <br>
-        
-        <li>
-            <a href="qa2/second-page.html">Second Page</a>
-        </li>
-        <li>
-            <a href="qa2/shadow-styles.html">Shadow DOM stylesheets</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa2/test-cases-shadow-dom.html">Advanced test cases 1</a>
-        </li>
-        <li>
-            <a href="qa2/test-cases-shadow-dom-separate-testing.html">Advanced test cases 2</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa2/map-test.html">HTML + Shadow dom 1 simple case</a>
-        </li>
-        <li>
-            <a href="qa2/map-test-2.html">HTML + Shadow dom 2 simple case</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa2/case-1.html">HTML only iframe</a>
-        </li>
-        <li>
-            <a href="qa2/case-2.html">Iframe with Shadow DOM</a>
-        </li>
-        <li>
-            <a href="qa2/case-3.html">Iframe inside SHADOW DOM</a>
-        </li>
-        <li>
-            <a href="qa2/case-4.html">Iframe inside SHADOW DOM with SHADOW DOM</a>
-        </li>
-        <li>
-            <a href="qa2/iframe-domain-full.html">Iframe with Full DOMAIN Url</a>
-        </li>
-        <br>
-        <br>
-        <li>
-            <a href="qa2/font-case.html">Simple page with different FONTS</a>
-        </li>
-    </ul>
-
-
-    <h2>QA3 environment links</h2>
-    <ul>
-        <li>
-            <a href="qa3">index</a>
-        </li>
-        <li>
-            <a href="qa3/second-page.html">Second Page</a>
-        </li>
-        <li>
-            <a href="qa3/shadow-styles.html">Shadow DOM stylesheets</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa3/test-cases-shadow-dom.html">Advanced test cases 1</a>
-        </li>
-        <li>
-            <a href="qa3/test-cases-shadow-dom-separate-testing.html">Advanced test cases 2</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa3/map-test.html">HTML + Shadow dom 1 simple case</a>
-        </li>
-        <li>
-            <a href="qa3/map-test-2.html">HTML + Shadow dom 2 simple case</a>
-        </li>
-        <br>
-        <li>
-            <a href="qa3/case-1.html">HTML only iframe</a>
-        </li>
-        <li>
-            <a href="qa3/case-2.html">Iframe with Shadow DOM</a>
-        </li>
-        <li>
-            <a href="qa3/case-3.html">Iframe inside SHADOW DOM</a>
-        </li>
-        <li>
-            <a href="qa3/case-4.html">Iframe inside SHADOW DOM with SHADOW DOM</a>
-        </li>
-    </ul>
+    
+    <p class="default-font">Times New Roman</p>
+    
+    <p class="fancy-font">Remachine Script</p>
+    <button type="submit" id="sbm-tva-personal-key" class="btn btn-primary submit-tva border-btn">Aceptar</button>
+    <p class="btn-submenu"> 
+        <span class=" icon"></span>
+    </p>
+    <script>
+        (() => {
+            const pElement = document.createElement("p");
+            const content = `
+                <style>
+                    @font-face {
+                        font-style: normal;
+                        font-family: festivalFont;
+                        src: url(assets/SuperFestival.ttf) format("truetype");
+                    }
+                    p {
+                        font-family: festivalFont;
+                        color: rgb(33, 126, 56);
+                    }
+                </style>
+                Super Festival Font
+            `;
+            pElement.innerHTML = content;
+            document.body.appendChild(pElement);
+        })();
+    </script>
+    <script>
+        (() => {
+            const divElement = document.createElement("div");
+            const content = `
+                <style>
+                    @font-face {
+                        font-style: normal;
+                        font-family: ECIECITEST;
+                        src: url(assets/fonts/ecifont-medium.woff2) format("woff2");
+                    }
+                    div {
+                        font-family: ECIECITEST;
+                        font-size: 45px;
+                        color: rgb(33, 1, 56);
+                    }
+                </style>
+                ECIFONT SCRIPT Aceptar
+            `;
+            divElement.innerHTML = content;
+            document.body.appendChild(divElement);
+        })();
+    </script>
 </body>
+
 </html>
