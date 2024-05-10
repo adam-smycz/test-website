@@ -2232,7 +2232,7 @@ select[disabled] {
 
 .select select,
 select {
-    background-image: url(/assets/img/icons/arrow_grey_down.svg);
+    background-image: url(../../img/icons/arrow_grey_down.svg);
     background-size: 12px 8px
 }
 
@@ -6672,7 +6672,7 @@ a:hover.btnBannerAR04 {
 
 .btn-submenu .icon:before {
     content: "";
-    background-image: url(/test-website/assets/img/icons/arrow_grey_down.svg);
+    background-image: url(../../img/icons/arrow_grey_down.svg);
     background-size: 12px 8px;
     background-repeat: no-repeat;
     height: 12px;
@@ -8010,7 +8010,7 @@ label a {
 }
 
 select.form-control {
-    background-image: url(/assets/img/icons/arrow_grey_down.svg)
+    background-image: url(../../img/icons/arrow_grey_down.svg)
 }
 
 .form-control:active,
