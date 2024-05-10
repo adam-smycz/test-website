@@ -1679,7 +1679,7 @@ button.close {
     font-style: normal;
     font-family: Eci Font Medium;
     font-weight: 300;
-    src: url(/assets/fonts/ecifont-medium.woff2) format("woff2"), url(/assets/fonts/ecifont-medium.woff) format("woff"), url(/assets/fonts/ECIFont-Medium.ttf) format("truetype")
+    src: url(../../fonts/ecifont-medium.woff2) format("woff2"), url(/assets/fonts/ecifont-medium.woff) format("woff"), url(/assets/fonts/ECIFont-Medium.ttf) format("truetype")
 }
 
 @font-face {
