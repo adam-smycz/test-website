@@ -63,6 +63,31 @@
             document.body.appendChild(divElement);
         })();
     </script>
+     <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const slotElement = document.createElement('slot');
+            slotElement.className = 'red-rectangle';
+            const content = `
+                <style>
+                    .red-rectangle {
+                        width: 600px;
+                        height: 200px;
+                        background-color: red;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        color: white;
+                        font-size: 24px;
+                        font-weight: bold;
+                }
+                </style>
+                LOL
+            `;
+
+            slotElement.innerHTML = content;
+            document.body.appendChild(slotElement);
+        });
+    </script>
 </body>
 
 </html>
