@@ -1,0 +1,877 @@
+<html lang="en"><head><style>.TLCOVER {position: fixed; height: 100%; width: 100%; top:0; left: 0; background: #000; z-index:2147483647;}</style><script>  var observeDOM = (function(){
+	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver,
+		eventListenerSupported = window.addEventListener;
+
+	return function(obj, callback){
+		if( MutationObserver ){
+			// define a new observer
+			var obs = new MutationObserver(function(mutations, observer){
+				//if( mutations[0].addedNodes.length || mutations[0].removedNodes.length )
+				console.log("observed, invoke callback");
+				callback();
+			});
+			// have the observer observe foo for changes in children
+			obs.observe( obj, { childList:true, subtree:true });
+		} else if( eventListenerSupported ){
+			obj.addEventListener('DOMSubtreeModified', callback, false);
+			// obj.addEventListener('DOMNodeInserted', callback, false);
+			// obj.addEventListener('DOMNodeRemoved', callback, false);
+		}
+	};
+})();
+
+function addShadows() {
+  var tlShadow = document.getElementById("TLSHADOW");
+  if (tlShadow) {
+	  var shadows = JSON.parse(tlShadow.innerHTML);
+	  if (shadows) {
+		  for (i = 0, len = shadows.length; i < len; i += 1) {
+			  var currentNode = TeaLeaf_Client_tlGetNodeFromXPath_v2(shadows[i].xpath, -2);
+			  if (currentNode) {
+				  try {
+					  shadowRoot = currentNode.attachShadow({ mode: "open" });
+					  shadowRoot.innerHTML = shadows[i].root;
+				  } catch (e) {
+					  console.error("Exception when adding shadow DOM: ", e);
+				  }
+				  if(shadows[i].frames && shadows[i].frames.length > 0){
+					  for (j = 0, len2 = shadows[i].frames.length; j < len2; j += 1) {
+						  var iframe = shadowRoot.querySelector('iframe[tltid="'+shadows[i].frames[j].tltid+'"]');
+						  var frameDoc = iframe.contentWindow.document;
+						  frameDoc.open();
+						  frameDoc.write("");
+						  frameDoc.write(shadows[i].frames[j].root);
+						  frameDoc.close();
+						  if(shadows[i].frames[j].shadows && shadows[i].frames[j].shadows.length > 0){
+							  for (k = 0, len3 = shadows[i].frames[j].shadows.length; k < len3; k += 1) {
+								  addShadow(JSON.stringify(shadows[i].frames[j].shadows[k]));
+							  }
+						  }
+					  }
+				  }
+			  }
+		  }
+	  }
+  }
+}
+
+function addShadow(tlShadow) {
+  if (tlShadow) {
+	  var shadow = JSON.parse(tlShadow);
+	  if (shadow) {
+		  var currentNode = TeaLeaf_Client_tlGetNodeFromXPath_v2(shadow.xpath, -2);
+		  if (currentNode) {
+			  try {
+				  shadowRoot = currentNode.attachShadow({ mode: "open" });
+				  shadowRoot.innerHTML = shadow.root;
+			  } catch (e) {
+				  console.error("Exception when adding shadow DOM: ", e);
+			  }
+			  if(shadow.frames && shadow.frames.length > 0){
+				  var iframe = shadowRoot.querySelector('iframe');
+				  for (j = 0, len2 = shadow.frames.length; j < len2; j += 1) {
+					  if(shadow.frames[j].shadows && shadow.frames[j].shadows.length > 0){
+						  var iframe = shadowRoot.querySelector('iframe[tltid="'+shadow.frames[j].tltid+'"]');
+						  var frameDoc = iframe.contentWindow.document;
+						  frameDoc.open();
+						  frameDoc.write("");
+						  frameDoc.write(shadow.frames[j].root);
+						  frameDoc.close();
+						  for (k = 0, len3 = shadow.frames[j].shadows.length; k < len3; k += 1) {
+								addShadow(shadow.frames[j].shadows[k]);
+						  }
+					  }
+				  }
+			  }
+		  }
+	  }
+  }
+}
+
+function moveHighlight2Pos(x, y) {
+  var scrollX = 0;
+  var scrollY = 0;
+
+  //calulate scrolls, to get absolute position
+  if (window.scrollX) {
+	  scrollX = window.scrollX;
+	  scrollY = window.scrollY;
+
+  } else {
+	  scrollX = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+
+	  scrollY = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+  }
+
+  //add scrolls to the offsets
+  newLeft = x + scrollX;
+  newTop = y + scrollY;
+  newLeft = newLeft.toFixed(0);
+  newTop = newTop.toFixed(0);
+  
+  var tlCircle = document.getElementById("tealCircle");
+  //move
+  if (newLeft > 30) {
+	  newLeft = newLeft - 30;
+  } else {
+	  newLeft = 0;
+  }
+  if (newTop > 30) {
+	  newTop = newTop - 30;
+  } else {
+	  newTop = 0;
+  }
+  tlCircle.style.left = "" + (newLeft) + "px";
+  tlCircle.style.top = "" + (newTop) + "px";
+  tlCircle.style.display = "block";
+}
+
+function moveHighlight(id, idType) {
+  var tlCircle = document.getElementById("tealCircle"),
+  currentNode = TeaLeaf_Client_tlGetNodeFromXPath_v2(id, idType);
+  console.log("---> id passed to TeaLeaf_Client_tlGetNodeFromXPath_v2(): " + id);
+
+    if (!currentNode) {
+
+       console.log("---> Unable to resolve currentNode: " + currentNode);
+
+       tlCircle.style.display = "none";
+
+       return;
+
+    }
+    // If currentNode is a slot element getBoundingClientRect() returns coordinates of 0.
+
+    // In that situation, use the parent element instead.
+  try {
+
+       currentNode.assignedNodes();
+
+       currentNode = currentNode.parentNode;
+
+    } 
+  catch (e) {
+  console.log("---> currentNode is not a slot element: " + e);
+  }
+
+  if (currentNode != null) {
+	  //make the node appear in the viewport prior to calulating the position of tlCircle
+// 		currentNode.scrollIntoView({
+//                     behavior: 'auto',
+//                     block: 'center',
+//                     inline: 'center'
+//                 });
+  
+	  //native session 
+	  if (currentNode.hasAttribute("templatetype") && currentNode.getAttribute("templatetype") == "radioButton") {
+		  var radioElements = document.querySelectorAll("[id='" + id + "']");
+		  if (radioElements) {
+			  for (var i = 0; i < radioElements.length; i++) {
+				  var radioInput = radioElements[i].getElementsByTagName('INPUT');
+				  if (radioInput && radioInput[0] && radioInput[0].hasAttribute("checked")) {
+					  currentNode = radioElements[i];
+					  break;
+				  }
+			  }
+		  }
+	  }
+	  
+	  var rect = currentNode.getBoundingClientRect();
+	  tagName = currentNode.tagName.toUpperCase();
+	  if (tagName == 'A' || currentNode.tagName == 'SPAN') {
+		  //handle inline elements when they're wrapped
+		  var rects = currentNode.getClientRects();
+		  if (rects.length > 1) {
+			  rect = rects[0];
+			  for (var i = 1; i != rects.length; i++) {
+				  if (rects[i].width > rect.width) {
+					  rect = rects[i];
+				  }
+			  }
+		  }
+	  }
+	  
+	  var newLeft = (rect.left + rect.right) / 2;
+	  
+	  if (rect.width > 100) {
+		  hlrelx = document.getElementById("tealeaf_hl_relx");
+		  if (hlrelx && hlrelx.innerHTML.length > 0) {
+			  relx = parseFloat(hlrelx.innerHTML);
+			  newLeft = rect.left+(rect.right-rect.left) * relx;
+		  }
+	  }
+	  var newTop = (rect.top + rect.bottom) / 2;
+	  
+	  if (rect.height > 100) {
+		  hlrely = document.getElementById("tealeaf_hl_rely");
+		  if (hlrely && hlrely.innerHTML.length > 0) {
+			  rely = parseFloat(hlrely.innerHTML);
+			  newTop = rect.top+(rect.bottom-rect.top) * rely;
+		  }
+	  }
+	  var scrollX = 0;
+	  var scrollY = 0;
+
+	  //calulate scrolls, to get absolute position
+	  if (window.scrollX) {
+		  scrollX = window.scrollX;
+		  scrollY = window.scrollY;
+
+	  } else {
+		  scrollX = (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+
+		  scrollY = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+	  }
+
+	  //add scrolls to the offsets
+	  newLeft += scrollX;
+	  newTop += scrollY;
+	  newLeft = newLeft.toFixed(0);
+	  newTop = newTop.toFixed(0);
+
+
+	  if (newLeft < 0 || newTop < 0) {
+		  tlCircle.style.display = "none";
+	  } else {
+		  //update image
+		  svg = document.getElementById("tealeaf_hl_svg");
+		  img = document.getElementById("tealeafhlimg");
+		  if (svg && img) {
+			  img.setAttribute("xlink:href", svg.innerHTML);
+		  }
+
+		  //move
+		  if (newLeft > 30) {
+			  newLeft = newLeft - 30;
+		  } else {
+			  newLeft = 0;
+		  }
+		  if (newTop > 30) {
+			  newTop = newTop - 30;
+		  } else {
+			  newTop = 0;
+		  }
+		  tlCircle.style.left = "" + (newLeft) + "px";
+		  tlCircle.style.top = "" + (newTop) + "px";
+		  tlCircle.style.display = "block";
+	  }
+	tlCircle.scrollIntoView({
+				  behavior: 'auto',
+				  block: 'center',
+				  inline: 'center'
+			  }); //for vikas' testing
+	  //currentNode.scrollIntoView(false); //for vikas' testing
+  } else {
+	  tlCircle.style.display = "none";
+  }
+}
+
+function highlightHandler() {
+  hlsvg = document.getElementById("tealeaf_hl_svg");
+  if (hlsvg) {
+	  svg = hlsvg.innerHTML;
+	  img = document.getElementById("tealeafhlimg");
+	  if (img) {
+		  img.setAttribute("xlink:href", svg);
+	  }
+  }
+  var moved = false;
+  /*
+  hlx = document.getElementById("tealeaf_hl_x");
+  hly = document.getElementById("tealeaf_hl_y");
+  if (hlx && hly) {
+	  x = hlx.innerHTML;
+	  y = hly.innerHTML;
+	  if (x && x.length > 0 && y && y.length > 0) {
+		  moveHighlight2Pos(parseInt(x), parseInt(y));
+		  moved = true;
+	  }
+  }*/
+
+  if (moved == false) {
+	  hlid = document.getElementById("tealeaf_hl_id");
+	  hlidtype = document.getElementById("tealeaf_hl_idtype");
+	  if (hlid && hlidtype) {
+		  id = hlid.innerHTML;
+		  idType = hlidtype.innerHTML;
+		  if (id && id.length > 0) {
+			  moveHighlight(id, idType);
+			  moved = true;
+		  }
+	  }
+  }
+  if (moved == false) {
+	  var tlCircle = document.getElementById("tealCircle");
+	  tlCircle.style.display = "none";
+  }
+}
+
+function getXY(element, xOffset, yOffset) {
+	console.log({element, xOffset, yOffset});
+  if (element == null) {
+	  //alert('Invalid element passed to getXY.');
+	  return [-1, -1];
+  }
+
+  var x = 0,
+		  y = 0,
+		  elementReference = element;
+
+  if (elementReference.offsetParent) {
+	  do {
+		  x += elementReference.offsetLeft;
+		  y += elementReference.offsetTop;
+	  } while (!!(elementReference = elementReference.offsetParent));
+  }
+
+  return [x + parseInt(xOffset, 10) - document.documentElement.scrollLeft, y + parseInt(yOffset, 10)];
+}
+
+
+function doMouseEvents (node, xpath, clientX, clientY, doClick, doBubble) {
+	  var x = 0;
+	  var y = 0;
+	  try {
+		  var tmp = getXY(node, clientX, clientY);
+		  if (tmp && tmp[0]) {
+			  x = tmp[0];
+			  y = tmp[1];
+		  }
+	  }
+	  catch (e) { 
+	  }
+	  mouseEvent(node, "mousedown", x, y, clientX, clientY);
+	  mouseEvent(node, "mouseup", x, y, clientX, clientY);
+	  if (doClick) {
+		  mouseEvent(node, "click", x, y, clientX, clientY);
+	  }
+  }
+
+  function mouseEvent(node, evt, x, y, clientX, clientY) {
+	  if (document.createEvent) {
+	  //if (false) {
+		  var evObj = document.createEvent('MouseEvents');
+if (evObj == null) {
+  //alert("evObj == null");
+} else {
+  //alert("evObj != null");
+}            
+		  evObj.initMouseEvent(evt, true, true, window,
+			  1, x, y, clientX, clientY, false, false, false,
+			  false, 0, null);
+		  try {
+			  node.dispatchEvent(evObj);
+		  } catch (e) {
+		  }
+	  }
+	  else {
+		  try {
+			  var evObj = document.createEventObject();
+			  evObj.clientX = clientX;
+			  evObj.clientY = clientY;
+			  node.fireEvent('on' + evt, evObj);
+		  } catch (e) { 
+			  
+		  }
+	  }
+  }
+
+  function fireEvent(node, evt) {
+	  if (document.createEvent) {
+		  var evObj = document.createEvent('Events');
+		  evObj.initEvent(evt, true, true);
+		  node.dispatchEvent(evObj);
+	  }
+	  else {
+		  try {
+			  var evObj = document.createEventObject();
+			  node.fireEvent('on' + evt, evObj);
+		  } catch (e) { }
+	  }
+  }
+  
+  function TeaLeaf_Client_tlGetNodeFromXPath_v2(selector, type) {
+
+	  var idTypes = {
+		  HTML_ID: -1,
+		  XPATH_ID: -2,
+		  ATTRIBUTE_ID: -3,
+		  MOBILE_ID: -4
+	  },
+		  xpath;
+
+	  /**
+	  * Find one or more elements using a XPath selector.
+	  * @function
+	  * @name browserService-queryDom.xpath
+	  * @param  {String} query The XPath query to search for.
+	  * @param  {Object} [scope="document"] The DOM subtree to run the query in.
+	  * @return {Object}       Returns the DOM element matching the XPath.
+	  * @todo test the xpath implementation and probably fix it.
+	  */
+	  xpath = (function () {
+
+		  var __strToArr = typeof JSON === "object" && typeof JSON.parse === "function" ?
+			  function (xpathStr) { return JSON.parse(String(xpathStr)); } :
+			  function (xpathStr) { return eval(String(xpathStr)); };
+
+		  return function (query, scope) {
+			  var xpath = __strToArr(query),
+				  elem,
+				  pathElem = null,
+				  tagName,
+				  pathElemIsHost,
+				  
+				  i, j, k, len, jlen;
+
+			  if (typeof scope !== "undefined") {
+				  //alert("scope is defined");
+			  } else {
+				  //alert(" set scope to document");
+			  }
+			  scope = typeof scope !== "undefined" ? scope : document;
+			  elem = scope;
+			  
+			  if (!xpath) {
+				  return null;
+			  }
+
+			  //alert("xpath.length = " + xpath.length);
+
+			  for (i = 0, len = xpath.length; i < len && elem; ++i) {
+				  //alert("i = " + i);
+				  pathElem = xpath[i];
+				  pathElemIsHost = pathElem.length > 1 && pathElem[pathElem.length - 1] === "h";
+				  if (pathElem.length === 1 || (pathElem.length === 2 && pathElemIsHost)) {
+					  elem = scope.getElementById(pathElem[0]);
+				  } else {
+					  for (j = 0, k = -1, jlen = elem.childNodes.length; j < jlen; ++j) {
+						  if (elem.childNodes[j].nodeType === 1 && elem.childNodes[j].tagName.toUpperCase() === pathElem[0].toUpperCase()) {
+							  if (++k === pathElem[1]) {
+								  elem = elem.childNodes[j];
+								  break;
+							  }
+						  }
+					  }
+					  if (k !== pathElem[1]) {
+						  console.log("Unable to locate xpath component (" + i + ") " + pathElem[0]);
+						  return null;
+					  }
+				  }
+				  
+				  if (!elem) {
+					  console.log("Unable to locate xpath component (" + i + ") " + pathElem[0]);
+					  return null;
+				  }
+				  
+				  if (pathElemIsHost) {
+					  if (i < len - 1) {
+						  if (!elem.shadowRoot) {
+							  console.log("Host (" + i + ") " + pathElem[0] + " does not have a shadow root or the shadow root is not accessible.");
+							  return null;
+						  }
+						  elem = elem.shadowRoot;
+						  scope = elem;
+					  }
+				  }
+				  
+				  // Handle IFRAMEs
+				  if (elem.contentWindow) {
+					  scope = elem.contentWindow.document;
+					  elem = scope;
+				  }
+			  }
+
+			  return elem === scope || !elem ? null : elem;
+		  };
+	  }());
+	  /**
+	   * Helper function to transform a nodelist into an array.
+	   * @function
+	   * @name browserService-queryDom.list2Array
+	   * @param  {List} nodeList Pass in a DOM NodeList
+	   * @return {Array}          Returns an array.
+	   */
+	   function list2Array(nodeList) {
+		   var len = nodeList.length,
+			   result = [],
+			   i;
+		   if (typeof nodeList.length === "undefined") {
+			   return [nodeList];
+		   }
+		   for (i = 0; i < len; i += 1) {
+			   result[i] = nodeList[i];
+		   }
+		   return result;
+	   }
+	   
+	   if (type == idTypes.HTML_ID || type == idTypes.MOBILE_ID) {
+		   return document.getElementById(selector);
+	   } else if (type == idTypes.ATTRIBUTE_ID) {
+		   parts = selector.split("=");
+		   return document.querySelector("[" + parts[0] + "=\"" + parts[1] + "\"]");
+	   } else if (type == idTypes.XPATH_ID) {
+		   return xpath(selector);
+	   }
+
+   }
+
+  function execute(node, elementValue, subType, xpath, clientX, clientY, isParentLink, curStateIsChecked, curStateIsSelected, curStateIsOn, curStateButtonIndex, curStateValue, curStateMaxValue, curStateCurrentPage, curStateSelectedColumn, curStateVisibleCols, curStateNumberOfColumns, curStateVisiblePics) {
+	  try {
+		  if (clientX == null) clientX = -1;
+		  if (clientY == null) clientY = -1;
+
+		  if (node) {
+			  var type = "";
+			  var tag = "";
+			  if (typeof (node.type) != "undefined")
+				  type = node.type.toLowerCase();
+			  if (typeof (node.tagName) != "undefined")
+				  tag = node.tagName.toLowerCase();
+			  
+			  if (elementValue.length) {
+				  if (clientX != -1 && clientY != -1 && subType.toLowerCase() !== "click") {
+					  doMouseEvents(node, xpath, clientX, clientY, true, isParentLink);
+				  }
+				  if (type == "select" || tag == "select") {
+					  var opts = node.options;
+					  if (opts != null) {
+						  for (i = 0; i < opts.length; i++) {
+							  var optionValue = opts[i].getAttribute("value") || opts[i].getAttribute("label") || opts[i].text;
+							  if (optionValue === elementValue) {
+								  node.selectedIndex = i;
+								  break;
+							  }
+						  }
+					  }
+				  }
+				  else if (tag == "td")
+					  node.innerHTML = elementValue;
+				  else
+					  node.value = elementValue;
+				  if (type == "radio") {
+					  node.checked = 1;
+				  }
+				  else if (type == "checkbox") {
+					  node.checked = elementValue == "1" ? 1 : 0;
+				  }
+				  fireEvent(node, 'change');
+			  }
+			  if (subType == "mousedown") {
+				  node.focus();
+				  if (clientX != -1 && clientY != -1)
+					  doMouseEvents(node, xpath, clientX, clientY, false, isParentLink);
+				  else {
+					  // Is this correct?
+					  node.click();
+				  }
+			  }
+			  if (subType == "mouseover") {
+				  node.onmouseover();
+			  }
+			  if (subType == "click") {
+				  node.focus();
+				  if (clientX != -1 && clientY != -1)
+					  doMouseEvents(node, xpath, clientX, clientY, true, isParentLink);
+				  else {
+					  node.click();
+				  }
+			  }
+			  if (subType == "onblur") {
+				  fireEvent(node, 'blur');
+			  }
+			  if (subType == "KeyUp") {
+				  fireEvent(node, 'keyup');
+			  }
+			  
+			  // Android native replay for toggleButton
+			  if (subType == "click" && (elementValue.toLowerCase() == "on" || elementValue.toLowerCase() == "off")) {
+				  var labels = node.getElementsByTagName("label");
+				  if (labels && labels[0]) {
+					  if (labels[0].innerText) {
+						  // Chrome
+						  labels[0].innerText = elementValue;
+					  } else {
+						  // Firefox
+						  labels[0].innerHTML = elementValue;
+					  }
+				  }
+			  }
+			  // Android native replay for CheckBox
+			  if (elementValue == "CheckBox" && subType == "click" && type == "checkbox") {
+				  if (dijit) {
+					  dijit.byNode(node).set("checked", true);
+				  }
+			  } else if (subType == "click" && node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "checkbox") {
+				  var checkboxInput = document.getElementById(node.id + "-input");
+				  if (checkboxInput) {
+					  checkboxInput.checked = curStateIsChecked;
+					  fireEvent(checkboxInput, 'change');
+				  }
+			  }
+			  // Android native replay for Spinner
+			  if (subType == "ItemSelected" && tag == "select") {
+				  if (node.options && node.options[0]) {
+					  node.options[0].text = elementValue;
+				  }
+			  }
+			  // Android native replay for SeekBar
+			  if (subType == "StopTrackingTouch") {
+				  if (typeof dijit === "undefined") {
+					  var seekBarInput = document.getElementById(node.id + "-input");
+					  if (seekBarInput) {
+						  seekBarInput.value = elementValue;
+						  fireEvent(seekBarInput, 'change');
+					  }
+					  var seekBarRange = document.getElementById(node.id + "-range");
+					  if (seekBarRange) {
+						  seekBarRange.style.v = elementValue + "%";
+					  }
+				  } else if (dijit) {
+					  dijit.byNode(node).set("value", elementValue);
+				  }
+			  }
+			  // Android native replay for RadioButton
+			  if (subType == "click" && node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "radioButton") {
+				  var radioInput = document.getElementById(node.id + "-input");
+				  if (radioInput) {
+					  radioInput.checked = curStateIsSelected;
+					  fireEvent(radioInput, 'change');
+				  }
+			  } else if (type == "radio" && subType == "click") {
+				  if (dijit) {
+					  dijit.byNode(node).set("checked", true);
+				  }
+			  }
+			  // Android native replay for RatingBar
+			  if (subType == "RatingChanged") {
+				  var idSubFix = elementValue / (node.getAttribute("maxvalue") / node.getAttribute("numstars"));
+				  var ratingInput = document.getElementById(node.id + idSubFix);
+				  if (ratingInput) {
+					  var inputs = node.getElementsByTagName('input');
+					  for (index = 0; index < inputs.length; ++index) {
+						  inputs[index].checked = 0;
+						  fireEvent(inputs[index], 'change');
+					  }
+					  ratingInput.checked = 1;
+					  fireEvent(ratingInput, 'change');
+				  }
+			  }
+			  
+			  // iOS native UISwitch
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "toggleButton") {
+				  var toggleButtonInput = document.getElementById(node.id + "-input");
+				  if (toggleButtonInput) {
+					  toggleButtonInput.checked = curStateIsOn;
+					  fireEvent(toggleButtonInput, 'change');
+				  }
+			  }
+			  // iOS native UIStepper
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "stepper" && curStateButtonIndex != -1) {
+				  // Remove all the styles
+				  var tds = node.getElementsByTagName("td");
+				  // Highlight button selected
+				  node = tds[curStateButtonIndex];
+			  }
+
+			  // iOS native UISegmentedBar
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "segmentedBar" && curStateButtonIndex != -1) {
+				  // Remove all the styles
+				  var tds = node.getElementsByTagName("td");
+				  for (i = 0; i < tds.length; i++) {
+					  tds[i].style.color = "inherit";
+					  tds[i].style.backgroundColor = "inherit";
+					  if (i == 0 || i == tds.length - 1) {
+						  tds[i].style.borderLeft = "inherit";
+					  }
+				  }
+				  // Clean and setup selected button
+				  tds[curStateButtonIndex].style.backgroundColor = '';
+				  tds[curStateButtonIndex].style.color = '';
+				  tds[curStateButtonIndex].className = 'tlSegmentedBarSelected';
+				  // Highlight button selected
+				  node = tds[curStateButtonIndex];
+			  }
+
+			  // iOS native UISlider
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "slider") {
+				  var sliderInput = document.getElementById(node.id + "-input");
+				  var sliderRange = document.getElementById(node.id + "-range");
+				  if (sliderInput && sliderRange && curStateValue != "") {
+					  sliderInput.value = (curStateValue * 100) / curStateMaxValue;
+					  sliderRange.style.width = ((sliderInput.value * node.offsetWidth) / 100) - 4;
+					  fireEvent(sliderInput, 'change');
+				  }
+			  }
+
+			  // iOS native UIPageControl
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "pageControl" && curStateCurrentPage != -1) {
+				  // Reset all the styles
+				  var iObjects = node.getElementsByTagName("i");
+				  for (i = 0; i < iObjects.length; i++) {
+					  iObjects[i].className = "fa fa-circle tlPageControlIcon tlPageControlColor"
+				  }
+
+				  if (curState && typeof curState.currentPage != 'undefined' && curState.currentPage > -1) {
+					  iObjects[curStateCurrentPage].className = "fa fa-circle tlPageControlIcon tlPageControlSelectedColor"
+				  }
+			  }
+			  
+			  // iOS native UIPickerView
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "pickerView" && curStateSelectedColumn != -1 && curStateVisibleCols != 'undefined') {
+				  // Update the text on the selected column - standard is only 5 visible rows
+				  for (i = 0; i < curStateVisibleCols.length; i++) {
+					  var pickerLabel = document.getElementById(node.id + ",[colNo," + curStateSelectedColumn + "],[rowNo," + i + "]");
+					  if (pickerLabel) {
+						  pickerLabel.innerHTML = curStateVisibleCols[i];
+					  }
+				  }
+			  }
+
+			  // iOS native UIDatePicker curStateNumberOfColumns, curStateVisiblePics
+			  if (node.hasAttribute("templatetype") && node.getAttribute("templatetype") == "datePicker" && curStateNumberOfColumns != -1 && curStateVisiblePics != 'undefined') {
+				  for (colNo = 0; colNo < curStateNumberOfColumns; colNo++) {
+					  for (rowNo = 0; rowNo < curStateVisiblePics[colNo].length; rowNo++) {
+						  if (colNo > 0) {
+							  var pickerLabel = document.getElementById(node.id + ",[colNo," + colNo + "],[rowNo," + rowNo + "]");
+							  if (pickerLabel) {
+								  pickerLabel.innerHTML = curStateVisiblePics[colNo][rowNo];
+							  }
+						  } else if (colNo == 0) {
+							  var lblData = (curStateVisiblePics[colNo][rowNo]).split('.');
+							  for (lblNo = 0; lblNo < lblData.length; lblNo++) {
+								  var pickerLabel = document.getElementById(node.id + ",[colNo," + colNo + "],[rowNo," + rowNo + "],[lblNo," + lblNo + "]");
+								  if (pickerLabel) {
+									  pickerLabel.innerHTML = lblData[lblNo];
+								  }
+							  }
+						  }
+					  }
+				  }
+			  }             
+
+			  // Handle scroll events. Scroll coordinates are in clientX/clientY.
+			  if (subType == "scroll") {
+				  window.scroll(clientX, clientY);
+			  }
+		  }
+	  } catch (e) {  
+		  //alert("catch e=" + e);
+	  }
+  }
+  
+  function changeOptionText(elementId, elementName, elementXPath, value, idType) {
+	  var node = [];
+	  if (idType != 0) {
+		  node[0] = TeaLeaf_Client_tlGetNodeFromXPath_v2(elementId || elementXPath, idType);
+		  if (node[0] != null) {
+			  var list = node[0].getElementsByTagName("option");
+			  list[0].innerHTML = value;
+		  }
+	  }
+	  
+  }
+
+  function execUIEvent(elementId, elementName, elementXPath, value, subType, idType, isParentLink, clientX, clientY, curStateIsChecked, curStateIsSelected, curStateIsOn, curStateButtonIndex, curStateValue, curStateMaxValue, curStateCurrentPage, curStateSelectedColumn, curStateVisibleCols, curStateNumberOfColumns, curStateVisiblePics) {
+	  var node = [];
+	  if (subType == "attention" || subType == "load" || subType == "unload" || subType == "resize")
+		  return true;
+	  // For scroll events just execute with window node, no highlighting.
+	  if (subType == "scroll") {
+		  execute(window, value, subType, exec, elementXPath, clientX, clientY, isParentLink, curStateIsChecked, curStateIsSelected, curStateIsOn, curStateButtonIndex, curStateValue, curStateMaxValue, curStateCurrentPage, curStateSelectedColumn, curStateVisibleCols, curStateNumberOfColumns, curStateVisiblePics);
+		  return true;
+	  }
+	  if (idType != 0) {
+		  node[0] = TeaLeaf_Client_tlGetNodeFromXPath_v2(elementId || elementXPath, idType);
+	  }
+
+	  var i;
+	  if (node.length == 0 || (node.length == 1 && node[0] == null)) {
+		  var e = document.getElementsByName(elementName);
+		  if (e.length >= 1) {
+			  for (i = 0; i < e.length; i++) {
+				  node[i] = e[i];
+			  }
+		  } else {
+		  }
+	  }
+	  for (i = 0; i < node.length; i++) {
+		  execute(node[i], value, subType, elementXPath, clientX, clientY, isParentLink, curStateIsChecked, curStateIsSelected, curStateIsOn, curStateButtonIndex, curStateValue, curStateMaxValue, curStateCurrentPage, curStateSelectedColumn, curStateVisibleCols, curStateNumberOfColumns, curStateVisiblePics);
+	  }
+	  return true;
+  }
+  
+  function setWebViewSrc(elementId, newSrc) {
+	  document.getElementById(elementId).src = newSrc; 
+  }
+  
+function tlOnLoad(){
+window.setTimeout(function() {moveHighlight('[["html",0],["body",0],["div",1],["span",0],["slot",0]]',-2)}, 800);
+}
+</script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://eaoc.perf.goacoustic.com/webapp/api/replay/replayProxyAsset?p=apath%3Dhttps%253A%252F%252Fadam-smycz.github.io%252Ftest-website%252Fassets%252Fcss%252Fpublic%252Ffont-case-style.css%26host%3Dhttps%253A%252F%252Feaoc.perf.goacoustic.com%26oid%3D20201119031409%26reload%3D0%26rmu%3D1">
+  <base href="https://eaoc.perf.goacoustic.com/webapp/api/replay/replayProxyAsset?p=apath%3Dhttps%253A%252F%252Fadam-smycz.github.io%252Ftest-website%252F%26host%3Dhttps%253A%252F%252Feaoc.perf.goacoustic.com%26oid%3D20201119031409%26reload%3D0%26rmu%3D1">
+  <link rel="stylesheet" href="https://eaoc.perf.goacoustic.com/webapp/api/replay/replayProxyAsset?p=apath%3Dhttps%253A%252F%252Fadam-smycz.github.io%252Ftest-website%252Fassets%252Fcss%252Fpublic%252Fbase.min.8d361898b.css%26host%3Dhttps%253A%252F%252Feaoc.perf.goacoustic.com%26oid%3D20201119031409%26reload%3D0%26rmu%3D1">
+  
+  <title>FONTS</title>
+</head>
+
+<body onload="tlOnLoad()">
+  
+  <p class="default-font">Times New Roman</p>
+  
+  <p class="fancy-font">Remachine Script</p>
+  <button type="submit" id="sbm-tva-personal-key" class="btn btn-primary submit-tva border-btn">Aceptar</button>
+  <p class="btn-submenu"> 
+	  <span class=" icon"></span>
+  </p>
+  <p>
+			  <style>@font-face {
+					  font-style: normal;
+					  font-family: festivalFont;
+					  src: url(https://eaoc.perf.goacoustic.com/webapp/api/replay/replayProxyAsset?p=apath%3Dhttps%253A%252F%252Fadam-smycz.github.io%252Ftest-website%252Fassets%252FSuperFestival.ttf%26host%3Dhttps%253A%252F%252Feaoc.perf.goacoustic.com%26oid%3D20201119031409%26reload%3D0%26rmu%3D1) format("truetype");
+				  }
+				  p {
+					  font-family: festivalFont;
+					  color: rgb(33, 126, 56);
+				  }</style>
+			  Super Festival Font
+		  </p>
+  <div>
+			  <style>@font-face {
+					  font-style: normal;
+					  font-family: ECIECITEST;
+					  src: url(https://eaoc.perf.goacoustic.com/webapp/api/replay/replayProxyAsset?p=apath%3Dhttps%253A%252F%252Fadam-smycz.github.io%252Ftest-website%252Fassets%252Ffonts%252Fecifont-medium.woff2%26host%3Dhttps%253A%252F%252Feaoc.perf.goacoustic.com%26oid%3D20201119031409%26reload%3D0%26rmu%3D1) format("woff2");
+				  }
+				  div {
+					  font-family: ECIECITEST;
+					  font-size: 45px;
+					  color: rgb(33, 1, 56);
+				  }</style>
+			  ECIFONT SCRIPT Aceptar
+		  </div>
+   
+
+
+<div class="red-rectangle">
+			  <style>
+				  .red-rectangle {
+					  width: 600px;
+					  background-color: red;
+			  }
+			  </style>
+		  <span><slot class="red-rectangle">
+			  <style>
+				  .red-rectangle {
+					  display: flex;
+					  justify-content: center;
+					  align-items: center;
+					  color: white;
+					  font-size: 48px;
+					  font-weight: bold;
+			  }
+			  </style>
+			  LOL
+		  </slot></span></div><div id="tealeaf_hl_placeholder" style="display:none"><div id="tealeaf_hl_id_placeholder"><div id="tealeaf_hl_id">[["html",0],["body",0],["div",1],["span",0],["slot",0]]</div></div><div id="tealeaf_hl_idtype">-2</div></div><div id="tealeaf_hl_svg" style="display:none">data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj4KICAgIDxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgb3BhY2l0eT0iMCIvPgogICAgPHBhdGggZmlsbD0iIzk1OTU5NSIgZD0iTTYuNjI4MDU2NDgsNi4wMjMwNzM3MyBMMTYuNzY2ODM3Myw4Ljg5ODQyNjQ5IEMxNi45NTMyODA4LDguOTUxNjk4ODcgMTcuMDg4NDU5Miw5LjEwODc3MjIyIDE3LjExMzkyMjEsOS4zMDE3Mjg3MyBDMTcuMTQzMDk2LDkuNDk4ODYzMDIgMTcuMDUyMjk2Nyw5LjY5ODY4MjUzIDE2Ljg4MjQzNTUsOS44MTExNTQ1MyBMMTQuMzIyODA3MywxMS41Mzg3NzAzIEwxNy4zNzU4NDA4LDE0LjU4MzQ3OTEgQzE3LjQ2OTk4NDksMTQuNjc2NzI5OSAxNy41MjE2MTYsMTQuODA1MDAyOCAxNy41MTkzMzk4LDE0LjkzOTc5ODMgQzE3LjUxNjkwOTUsMTUuMDc0NTkzOSAxNy40NjA3NjY5LDE1LjIwNDc0ODMgMTcuMzYzMzE1OSwxNS4zMDEzNTE0IEwxNS4zMDM4MTUsMTcuMzU4ODM2MyBDMTUuMjEwNzgwMywxNy40NTYzMjg2IDE1LjA4NDQyNzQsMTcuNTE0Nzg2NCAxNC45NTE5MDU3LDE3LjUyMTY3MzggQzE0LjgxNzM4MzUsMTcuNTI0Nzc0MSAxNC42ODkwMjAzLDE3LjQ3NDI3OCAxNC41OTUxNzE1LDE3LjM4MTMxNTIgTDExLjU0NzI4NjgsMTQuMzMxNDYyNyBMOS44MTgwMTk4OCwxNi44ODg1NzQ2IEM5LjcwNTQ0MDQ5LDE3LjA1ODI2ODYgOS41MDU0MjI3OSwxNy4xNDg5ODM2IDkuMzA4MDg4NzksMTcuMTE5ODQ2IEM5LjExNDkzNjkyLDE3LjA5NDQxNTUgOC45NTc3MDA1MSwxNi45NTkzNzg3IDguOTA0MzY3ODksMTYuNzczMTI0OCBMNi4wNDQ1OTA5OSw2LjcxNTM1Nzg3IEM1Ljk3NDA5ODY3LDYuNTMxNjczNDcgNi4wMTk2MDA1Nyw2LjMxOTk3MDQxIDYuMTYwNzM5MSw2LjE3NDUyNDc4IEM2LjI4NDM4MTI2LDYuMDQ3NDA1OCA2LjQ2MTA5MDk3LDUuOTkxNzI0ODggNi42MjgwNTY0OCw2LjAyMzA3MzczIFogTTcuNTk0MjY1MDcsNy41OTYwMDg1MSBMOS42NjU2NDU5OSwxNC44ODE0MTgxIEwxMS4zNjA1MjQxLDEyLjM3NjI0MTYgTDE0LjkzODQ1MjksMTUuOTU2NjYyMyBMMTUuOTU5MzM4MywxNC45MzY2NjA4IEwxMi4zNjUyNjg0LDExLjM1MTkyNzUgTDE0Ljg3MTI3NzcsOS42NTk4NzY0MiBMNy41OTQyNjUwNyw3LjU5NjAwODUxIFogTTguMTI1LDIuNSBMOC4xMjUsMy43NSBDNS43NTkwOTI2NywzLjc1IDMuODMxODEzMzIsNS42Mjc5ODk2MSAzLjc1MjUzNjg5LDcuOTc0NTkzOTEgTDMuNzUsOC4xMjUgTDIuNSw4LjEyNSBDMi41LDUuMDczODczMzEgNC45MjkyNTg1NSwyLjU5MDEzMDM2IDcuOTU5MTQ4NTksMi41MDIzOTgxOSBMOC4xMjUsMi41IFoiLz4KPC9zdmc+</div><div id="tealeaf_hl_x" style="display:none"></div><div id="tealeaf_hl_y" style="display:none"></div><div id="tealeaf_hl_relx" style="display:none">0.0250</div><div id="tealeaf_hl_rely" style="display:none">0.01</div><div id="tealCircle" style="margin: 0px; padding: 0px; display: block; left: 278px; top: 1155px; position: absolute; z-index: 2147483647;"><svg id="tealeafsvg" style="width:60px;height:60px"><circle id="tlcircle3" r="28" cx="30" cy="30" fill="#FED500"></circle><animate xlink:href="#tlcircle3" attributeName="opacity" repeatCount="indefinite" begin="0s" values="0.2;0.5;0.2" dur="2s"></animate><circle id="circle2" r="20" cx="30" cy="30" fill="#FED500" fill-opacity="0.6" stroke="white" stroke-width="1" stroke-opacity="0.6"></circle><image id="tealeafhlimg" x="20" y="20" width="20" height="20" xlink:href="data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj4KICAgIDxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgb3BhY2l0eT0iMCIvPgogICAgPHBhdGggZmlsbD0iIzk1OTU5NSIgZD0iTTYuNjI4MDU2NDgsNi4wMjMwNzM3MyBMMTYuNzY2ODM3Myw4Ljg5ODQyNjQ5IEMxNi45NTMyODA4LDguOTUxNjk4ODcgMTcuMDg4NDU5Miw5LjEwODc3MjIyIDE3LjExMzkyMjEsOS4zMDE3Mjg3MyBDMTcuMTQzMDk2LDkuNDk4ODYzMDIgMTcuMDUyMjk2Nyw5LjY5ODY4MjUzIDE2Ljg4MjQzNTUsOS44MTExNTQ1MyBMMTQuMzIyODA3MywxMS41Mzg3NzAzIEwxNy4zNzU4NDA4LDE0LjU4MzQ3OTEgQzE3LjQ2OTk4NDksMTQuNjc2NzI5OSAxNy41MjE2MTYsMTQuODA1MDAyOCAxNy41MTkzMzk4LDE0LjkzOTc5ODMgQzE3LjUxNjkwOTUsMTUuMDc0NTkzOSAxNy40NjA3NjY5LDE1LjIwNDc0ODMgMTcuMzYzMzE1OSwxNS4zMDEzNTE0IEwxNS4zMDM4MTUsMTcuMzU4ODM2MyBDMTUuMjEwNzgwMywxNy40NTYzMjg2IDE1LjA4NDQyNzQsMTcuNTE0Nzg2NCAxNC45NTE5MDU3LDE3LjUyMTY3MzggQzE0LjgxNzM4MzUsMTcuNTI0Nzc0MSAxNC42ODkwMjAzLDE3LjQ3NDI3OCAxNC41OTUxNzE1LDE3LjM4MTMxNTIgTDExLjU0NzI4NjgsMTQuMzMxNDYyNyBMOS44MTgwMTk4OCwxNi44ODg1NzQ2IEM5LjcwNTQ0MDQ5LDE3LjA1ODI2ODYgOS41MDU0MjI3OSwxNy4xNDg5ODM2IDkuMzA4MDg4NzksMTcuMTE5ODQ2IEM5LjExNDkzNjkyLDE3LjA5NDQxNTUgOC45NTc3MDA1MSwxNi45NTkzNzg3IDguOTA0MzY3ODksMTYuNzczMTI0OCBMNi4wNDQ1OTA5OSw2LjcxNTM1Nzg3IEM1Ljk3NDA5ODY3LDYuNTMxNjczNDcgNi4wMTk2MDA1Nyw2LjMxOTk3MDQxIDYuMTYwNzM5MSw2LjE3NDUyNDc4IEM2LjI4NDM4MTI2LDYuMDQ3NDA1OCA2LjQ2MTA5MDk3LDUuOTkxNzI0ODggNi42MjgwNTY0OCw2LjAyMzA3MzczIFogTTcuNTk0MjY1MDcsNy41OTYwMDg1MSBMOS42NjU2NDU5OSwxNC44ODE0MTgxIEwxMS4zNjA1MjQxLDEyLjM3NjI0MTYgTDE0LjkzODQ1MjksMTUuOTU2NjYyMyBMMTUuOTU5MzM4MywxNC45MzY2NjA4IEwxMi4zNjUyNjg0LDExLjM1MTkyNzUgTDE0Ljg3MTI3NzcsOS42NTk4NzY0MiBMNy41OTQyNjUwNyw3LjU5NjAwODUxIFogTTguMTI1LDIuNSBMOC4xMjUsMy43NSBDNS43NTkwOTI2NywzLjc1IDMuODMxODEzMzIsNS42Mjc5ODk2MSAzLjc1MjUzNjg5LDcuOTc0NTkzOTEgTDMuNzUsOC4xMjUgTDIuNSw4LjEyNSBDMi41LDUuMDczODczMzEgNC45MjkyNTg1NSwyLjU5MDEzMDM2IDcuOTU5MTQ4NTksMi41MDIzOTgxOSBMOC4xMjUsMi41IFoiLz4KPC9zdmc+"></image></svg></div></body></html>

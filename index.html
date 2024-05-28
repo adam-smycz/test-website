@@ -12,6 +12,11 @@
 </head>
 
 <body>
+    <div>
+        <span>
+            <slot>Default content if no slot content is provided</slot>
+        </span>
+    </div>
     
     <p class="default-font">Times New Roman</p>
     
@@ -73,7 +78,6 @@
             const divContent = `
                 <style>
                     .red-rectangle {
-                        width: 600px;
                         background-color: red;
                 }
                 </style>
@@ -82,6 +86,18 @@
 
 
             const spanElement = document.createElement('span');
+            spanElement.className = 'span-test';
+            const content1 = `
+                <style>
+                    .span-test {
+                        box-sizing: inherit;
+                        display: inline-block;
+    height: auto;
+    width: auto;
+                }
+                </style>
+            `;
+            spanElement.innerHTML = content1;
             divElement.appendChild(spanElement);
 
             const slotElement = document.createElement('slot');
@@ -100,7 +116,6 @@
                 LOL
             `;
             slotElement.innerHTML = content;
-
 
             spanElement.appendChild(slotElement);
         });
