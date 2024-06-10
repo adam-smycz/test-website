@@ -80,17 +80,18 @@
     <script>
         const hostElement = document.getElementById('shadowHost');
         const shadowRoot = hostElement.attachShadow({ mode: 'open' });
-        const shadowVisibleDiv = document.createElement('div');
-        const shadowInvisibleDiv = document.createElement('div');
-        shadowVisibleDiv.id = 'test1234ananas';
-        shadowVisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
 
+        const shadowInvisibleDiv = document.createElement('div');
         shadowInvisibleDiv.id = 'test1234ananas';
         shadowInvisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
         shadowInvisibleDiv.style.display = "none";
-
-        shadowRoot.appendChild(shadowVisibleDiv);
         shadowRoot.appendChild(shadowInvisibleDiv);
+
+        const shadowVisibleDiv = document.createElement('div');
+        shadowVisibleDiv.id = 'test1234ananas';
+        shadowVisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
+        shadowRoot.appendChild(shadowVisibleDiv);
+        
         document.body.appendChild(hostElement);
     </script>
     <p class="btn-submenu">
