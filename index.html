@@ -68,11 +68,31 @@
 
     <p class="fancy-font">Remachine Script</p>
     <button type="submit" id="sbm-tva-personal-key" class="btn btn-primary submit-tva border-btn">Aceptar</button>
-    <div style="background-color: yellow; width: 500px; height: 200px;  text-align: center; padding: 20px;
+    <div style="background-color: rgb(102, 210, 90); width: 500px; height: 200px;  text-align: center; padding: 20px;
     ">
         <div id="test1234" style="display: none">CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE</div>
         <div id="test1234">CLICK HERE <br> SAME ID TEST</div>
     </div>
+
+    <div id="shadowHost" style="background-color: rgb(85, 109, 82); width: 500px; height: 200px;  text-align: center; padding: 20px;
+    ">
+    </div>
+    <script>
+        const hostElement = document.getElementById('shadowHost');
+        const shadowRoot = hostElement.attachShadow({ mode: 'open' });
+        const shadowVisibleDiv = document.createElement('div');
+        const shadowInvisibleDiv = document.createElement('div');
+        shadowVisibleDiv.id = 'test1234ananas';
+        shadowVisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
+
+        shadowInvisibleDiv.id = 'test1234ananas';
+        shadowInvisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
+        shadowInvisibleDiv.style.display = "none";
+
+        shadowRoot.appendChild(shadowVisibleDiv);
+        shadowRoot.appendChild(shadowInvisibleDiv);
+        document.body.appendChild(hostElement);
+    </script>
     <p class="btn-submenu">
         <span class=" icon"></span>
     </p>
