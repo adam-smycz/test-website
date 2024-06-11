@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/public/font-case-style.css">
+    <base href="/test-website/">
+    <link rel="stylesheet" href="assets/css/public/base.min.8d361898b.css">
+    <script async src="./qa3-bbva-testing-6.4.70.js"></script>
+    <title>FONTS</title>
+</head>
+
+<body>
+    <div style="background-color: rgb(102, 210, 90); width: 500px; height: 200px;  text-align: center; padding: 20px;
+    ">
+        <div id="test1234" style="display: none">CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE</div>
+        <div id="test1234">CLICK HERE <br> SAME ID TEST</div>
+    </div>
+
+    <div id="shadowHost" style="background-color: rgb(85, 109, 82); width: 500px; height: 200px;  text-align: center; padding: 20px;
+    ">
+    </div>
+    <script>
+        const hostElement = document.getElementById('shadowHost');
+        const shadowRoot = hostElement.attachShadow({ mode: 'open' });
+
+        const shadowInvisibleDiv = document.createElement('div');
+        shadowInvisibleDiv.id = 'test1234ananas';
+        shadowInvisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
+        shadowInvisibleDiv.style.display = "none";
+        shadowRoot.appendChild(shadowInvisibleDiv);
+
+        const shadowVisibleDiv = document.createElement('div');
+        shadowVisibleDiv.id = 'test1234ananas';
+        shadowVisibleDiv.textContent = 'CLICK HERE - SAME ID TEST - THIS IS NOT VISIBLE SHADOW';
+        shadowRoot.appendChild(shadowVisibleDiv);
+        
+        document.body.appendChild(hostElement);
+    </script>
+    <p class="btn-submenu">
+        <span class=" icon"></span>
+    </p>
+    <script>
+        (() => {
+            const pElement = document.createElement("p");
+            const content = `
+                <style>
+                    @font-face {
+                        font-style: normal;
+                        font-family: festivalFont;
+                        src: url(assets/SuperFestival.ttf) format("truetype");
+                    }
+                    p {
+                        font-family: festivalFont;
+                        color: rgb(33, 126, 56);
+                    }
+                </style>
+                Super Festival Font
+            `;
+            pElement.innerHTML = content;
+            document.body.appendChild(pElement);
+        })();
+    </script>
+    <script>
+        (() => {
+            const divElement = document.createElement("div");
+            const content = `
+                <style>
+                    @font-face {
+                        font-style: normal;
+                        font-family: ECIECITEST;
+                        src: url(assets/fonts/ecifont-medium.woff2) format("woff2");
+                    }
+                    div {
+                        font-family: ECIECITEST;
+                        font-size: 45px;
+                        color: rgb(33, 1, 56);
+                    }
+                </style>
+                ECIFONT SCRIPT Aceptar
+            `;
+            divElement.innerHTML = content;
+            document.body.appendChild(divElement);
+        })();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+
+            const divElement = document.createElement('div');
+            divElement.className = 'red-rectangle';
+
+            document.body.appendChild(divElement);
+            const divContent = `
+                <style>
+                    .red-rectangle {
+                        background-color: red;
+                }
+                </style>
+            `;
+            divElement.innerHTML = divContent;
+
+
+            const spanElement = document.createElement('span');
+            spanElement.className = 'span-test';
+            const content1 = `
+                <style>
+                    .span-test {
+                        box-sizing: inherit;
+                        display: inline-block;
+    height: auto;
+    width: auto;
+                }
+                </style>
+            `;
+            spanElement.innerHTML = content1;
+            divElement.appendChild(spanElement);
+
+            const slotElement = document.createElement('slot');
+            slotElement.className = 'red-rectangle';
+            const content = `
+                <style>
+                    .red-rectangle {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        color: white;
+                        font-size: 48px;
+                        font-weight: bold;
+                }
+                </style>
+                LOL
+            `;
+            slotElement.innerHTML = content;
+
+            spanElement.appendChild(slotElement);
+        });
+    </script>
+</body>
+
+</html>
